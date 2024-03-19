@@ -13,7 +13,7 @@ from utils.file_process import load_lines
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score, roc_curve, balanced_accuracy_score
-from medcam import medcam
+#from medcam import medcam
 #from sklearn.metrics import accuracy_score
 #from sklearn.metrics import fbeta_score
 
