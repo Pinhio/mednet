@@ -111,9 +111,9 @@ class Cervix30Dataset(Dataset):
         """ 
         [depth, height, width] = data.shape
         scale = [self.input_D*1.0/depth, self.input_H*1.0/height, self.input_W*1.0/width]  
-        print('Scale {}', scale)
+        print(f'Scale {scale}')
         data = ndimage.interpolation.zoom(data, scale, order=0)
-        print('Data after resize: {}' + str(data.shape) )
+        print(f'Data after resize: {str(data.shape)}')
 
         return data
 
@@ -125,7 +125,7 @@ class Cervix30Dataset(Dataset):
         # random center crop
         data = self.__random_center_crop__ (data)
         
-        return data, label
+        return data
 
     def __training_data_process__(self, data): 
 

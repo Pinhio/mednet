@@ -1,5 +1,5 @@
 from setting import parse_opts 
-from datasets.cervix import Cervix30Dataset
+from data_loading.cervix import Cervix30Dataset
 from model import generate_model
 import torch
 import numpy as np

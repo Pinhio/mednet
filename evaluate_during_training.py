@@ -1,6 +1,6 @@
 from setting import parse_opts 
-from datasets.brains18 import BrainS18Dataset
-from datasets.cervix import Cervix30Dataset
+from data_loading.brains18 import BrainS18Dataset
+from data_loading.cervix import Cervix30Dataset
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
@@ -13,7 +13,7 @@ from utils.file_process import load_lines
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score, roc_curve, balanced_accuracy_score
-from medcam import medcam
+#from medcam import medcam
 #from sklearn.metrics import accuracy_score
 #from sklearn.metrics import fbeta_score
 
@@ -144,6 +144,68 @@ class Evaluator():
         
         return df_results
 
+
+    def seg_eval(pred, label, clss):
+        """
+        calculate the dice between prediction and ground truth
+        input:
+            pred: predicted mask
+            label: groud truth
+            clss: eg. [0, 1] for binary class
+        """
+        Ncls = len(clss)
+        dices = np.zeros(Ncls)
+        [depth, height, width] = pred.shape
+        for idx, cls in enumerate(clss):
+            # binary map
+            pred_cls = np.zeros([depth, height, width])
+            pred_cls[np.where(pred == cls)] = 1
+            label_cls = np.zeros([depth, height, width])
+            label_cls[np.where(label == cls)] = 1
+
+            # cal the inter & conv
+            s = pred_cls + label_cls
+            inter = len(np.where(s >= 2)[0])
+            conv = len(np.where(s >= 1)[0]) + inter
+            try:
+                dice = 2.0 * inter / conv
+            except:
+                print("conv is zeros when dice = 2.0 * inter / conv")
+                dice = -1
+
+            dices[idx] = dice
+
+        return dices
+
+    # Segmentierung: Gibt Vorhersage-Maske zurück
+    def test_seg(data_loader, model, img_names, sets):
+        masks = []
+        model.eval()
+        for batch_id, batch_data in enumerate(data_loader):
+            volume = batch_data
+            if not sets.no_cuda:
+                volume = volume.cuda()
+            with torch.no_grad():
+                probs = model(volume)
+                probs = F.softmax(probs, dim=1)
+
+            # resize mask to original size
+            [batchsize, _, mask_d, mask_h, mask_w] = probs.shape
+            data = nib.load(os.path.join(sets.data_root, img_names[batch_id]))
+            data = data.get_fdata()
+            [depth, height, width] = data.shape
+            mask = probs[0]
+            scale = [1, depth*1.0/mask_d, height*1.0/mask_h, width*1.0/mask_w]
+
+            mask = ndimage.zoom(mask.cpu(), scale, order=1)
+
+            mask = np.argmax(mask, axis=0)
+
+            masks.append(mask)
+
+        return masks
+
+
     def evaluate(self, model, sets, mode):  
 
         if sets.dataset == 'Cervix':
@@ -221,7 +283,7 @@ class Evaluator():
             return [accuracy, b_acc, dor, sensitivity, specificity, auc, loss, std_dev], probs_result
 
         # TODO: Muss angegepasst werden
-        elif sets.dataset == 'Brain':
+        """ elif sets.dataset == 'Brain':
             # data tensor
             testing_data = BrainS18Dataset(sets.data_root, 'data/Brain/test.txt', sets)
             data_loader = DataLoader(testing_data, batch_size=1, shuffle=False, num_workers=1, pin_memory=False)
@@ -243,69 +305,11 @@ class Evaluator():
             # print result
             for idx in range(1, sets.n_seg_classes):
                 mean_dice_per_task = np.mean(dices[:, idx])
-                print('mean dice for class-{} is {}'.format(idx, mean_dice_per_task))
+                print('mean dice for class-{} is {}'.format(idx, mean_dice_per_task)) """
 
-    def seg_eval(pred, label, clss):
-        """
-        calculate the dice between prediction and ground truth
-        input:
-            pred: predicted mask
-            label: groud truth
-            clss: eg. [0, 1] for binary class
-        """
-        Ncls = len(clss)
-        dices = np.zeros(Ncls)
-        [depth, height, width] = pred.shape
-        for idx, cls in enumerate(clss):
-            # binary map
-            pred_cls = np.zeros([depth, height, width])
-            pred_cls[np.where(pred == cls)] = 1
-            label_cls = np.zeros([depth, height, width])
-            label_cls[np.where(label == cls)] = 1
+    
 
-            # cal the inter & conv
-            s = pred_cls + label_cls
-            inter = len(np.where(s >= 2)[0])
-            conv = len(np.where(s >= 1)[0]) + inter
-            try:
-                dice = 2.0 * inter / conv
-            except:
-                print("conv is zeros when dice = 2.0 * inter / conv")
-                dice = -1
-
-            dices[idx] = dice
-
-        return dices
-
-    # Segmentierung: Gibt Vorhersage-Maske zurück
-    def test_seg(data_loader, model, img_names, sets):
-        masks = []
-        model.eval()
-        for batch_id, batch_data in enumerate(data_loader):
-            volume = batch_data
-            if not sets.no_cuda:
-                volume = volume.cuda()
-            with torch.no_grad():
-                probs = model(volume)
-                probs = F.softmax(probs, dim=1)
-
-            # resize mask to original size
-            [batchsize, _, mask_d, mask_h, mask_w] = probs.shape
-            data = nib.load(os.path.join(sets.data_root, img_names[batch_id]))
-            data = data.get_fdata()
-            [depth, height, width] = data.shape
-            mask = probs[0]
-            scale = [1, depth*1.0/mask_d, height*1.0/mask_h, width*1.0/mask_w]
-
-            mask = ndimage.zoom(mask.cpu(), scale, order=1)
-
-            mask = np.argmax(mask, axis=0)
-
-            masks.append(mask)
-
-        return masks
-
-    def generate_attention_map(self, model, sets, epoch):
+    """ def generate_attention_map(self, model, sets, epoch):
         
         # label=lambda x: 0.5 < x
         #model = medcam.inject(model, output_dir="gradcam/" + sets.name + "/" + sets.k, save_maps=True, backend='gcam', layer='auto', label='best', data_shape=[20, 160, 160])
@@ -318,5 +322,5 @@ class Evaluator():
         
         model3 = medcam.inject(model, output_dir="ggcampp/" + sets.name + "/" + sets.k, save_maps=True, backend='gcampp', layer='auto', label='best')
         scores, probs = self.evaluate(model3, sets, 'eval test')
-        model3.disable_medcam()
+        model3.disable_medcam() """
         

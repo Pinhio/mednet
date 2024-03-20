@@ -2,7 +2,7 @@ from setting import parse_opts
 from evaluate_during_training import Evaluator
 from model import generate_model
 from training_evaluation import Training_Evaluator
-from datasets.cervix import Cervix30Dataset
+from data_loading.cervix import Cervix30Dataset
 
 
 import torch

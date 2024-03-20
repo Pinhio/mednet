@@ -1,11 +1,10 @@
 '''
-Training code for MRBrainS18 datasets segmentation
-Written by Whalechen
+Training code for MRBrainS18 datasets segmentation, adjusted to Cervical Cancer Classification
+Written by Whalechen, Marlene Mertens
 '''
 
-from setting import parse_opts 
-from datasets.brains18 import BrainS18Dataset 
-from datasets.cervix import Cervix30Dataset
+from setting import parse_opts  
+from data_loading.cervix import Cervix30Dataset
 from evaluate_during_training import Evaluator
 from model import generate_model
 from training_evaluation import Training_Evaluator
@@ -13,10 +12,8 @@ from early_stopping import Early_Stopping
 
 import torch
 import numpy as np
-import pandas as pd
 from torch import nn
 from torch import optim
-from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 import time
 from utils.logger import log
@@ -172,7 +169,7 @@ if __name__ == '__main__':
         sets.input_D = 14
         sets.input_H = 28
         sets.input_W = 28
-        sets.new_layer_names = classifier
+        sets.new_layer_names = 'classifier'
     
     '''
     pretrained_name = sets.pretrain_path.split('_')
