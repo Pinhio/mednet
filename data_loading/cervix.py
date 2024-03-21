@@ -23,14 +23,14 @@ class Cervix30Dataset(Dataset):
         assert os.path.isfile(img_name)
         img = nibabel.load(img_name)
         assert img is not None
-        print("Bildgröße:")
+        print("Image Size:")
         print(img.shape)
         self.input_D = img.shape[0]
-        self.input_W = img.shape[1]
-        self.input_H = img.shape[2]
+        self.input_H = img.shape[1]
+        self.input_W = img.shape[2]
         sets.input_D = img.shape[0]
-        sets.input_W = img.shape[1]
-        sets.input_H = img.shape[2]
+        sets.input_H = img.shape[1]
+        sets.input_W = img.shape[2]
         self.phase = sets.phase
 
     def __nii2tensorarray__(self, data):
