@@ -42,7 +42,6 @@ def get_aug_training(training_samples:pd.DataFrame, aug_list:list, labels:pd.Dat
     ''' Get a k-th pairs of path and label for augmentations.
     '''
     k_th_list = aug_list[k::max_k] # get every k-th item from the augmentation list
-    print(k_th_list)
     
     for aug in k_th_list:
         patient = aug.split('_')[0]
@@ -62,13 +61,13 @@ def get_save_dir(save_root, clipping_name, aug, i):
 # for different augmentation / balanceing options: No Augmentation, No Augmentation negativ samples are doubled, With Augmentation, With Augmentation and negativ samples are doubles 
 # for 5-fold cross-validation
 # folder structure: data/Cervix/Train_Test_Split/<imageclipping>/<Aug/DoubleNegative>/<CrossValidationNr>/
-def create_train_test_split(data_root, save_root, labels, seed, k=5):
+def create_train_test_split(data_root, save_root, clipping_name, labels, seed, k=5):
     
     # list all files in directory
     
     #path_to_first_patient = data_root + '/images/rad8'
 
-    image_root = data_root + 'images'
+    image_root = data_root + clipping_name
     file_list = os.listdir(image_root)
     real_list = [elem for elem in file_list if not 'aug' in elem]
     aug_list = [elem for elem in file_list if elem not in real_list]
@@ -84,9 +83,6 @@ def create_train_test_split(data_root, save_root, labels, seed, k=5):
     for real in real_list:
         #_, clipping_name, _ = clipping.split('.') 
 
-        # dir name für file-struktur
-        clipping_name = 'my_test'
-
         file_path = image_root + '/' + real
         if os.path.exists(file_path):
 
@@ -97,9 +93,6 @@ def create_train_test_split(data_root, save_root, labels, seed, k=5):
                 negative_samples.loc[len(negative_samples)] = [file_path, label]
             else:
                 positive_samples.loc[len(positive_samples)] = [file_path, label]
-
-    print(positive_samples.head())
-    print(negative_samples.head())
         
     for i in range(k):
         # Split into Training and Testdata
@@ -134,14 +127,16 @@ if __name__ == '__main__':
     sets = parse_opts()
 
     if sets.dataset == 'Cervix':
-        #data_root = '/work/users/my814hiky/images' #TODO: work dir on SC
-        data_root = 'data/' #TODO: work dir on SC
-        save_root = 'data/Cervix'
+        data_root = '/work/users/jn137pgao/tl_datasets/'
+        save_root = '/work/users/jn137pgao/tl_data/Cervix/'
+
+        clipping_name = sets.dataset_name
+
         labels = pd.read_csv(data_root + 'labels.csv', sep=';')
         labels.set_index("id", inplace = True)
         seed = 1
           
-        create_train_test_split(data_root, save_root, labels, seed)
+        create_train_test_split(data_root, save_root, clipping_name, labels, seed)
                   
     else:
         print("Not defined for other Dataset yet")

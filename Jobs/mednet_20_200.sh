@@ -6,6 +6,10 @@
 #SBATCH --job-name=mednet
 #SBATCH --partition=clara
 #SBATCH --gres=gpu:v100:1
+#SBATCH --output=/home/sc.uni-leipzig.de/jn137pgao/jobfiles/log/%x-%j.out
+#SBATCH --error=/home/sc.uni-leipzig.de/jn137pgao/jobfiles/err/%x-%j.err
+#SBATCH --mail-type=END
+
 
 module load PyTorch
-python train.py --gpu_id 0 --image_clip_type '2_filtTrue_min_cut_ahe_org_randTrue_20' --pretrain_path 'pretrain/resnet_200.pth' --model_depth 200 --n_epochs 200 --name 'Selective Cut (Dilation 20), 200 layers'
+python train.py --gpu_id 0 --image_clip_type 't2_sag_black' --model_depth 200 --n_epochs 200 --name 'T2 sag, black, no aug, 200 layers'

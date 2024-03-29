@@ -9,7 +9,7 @@ def parse_opts():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--split_root',
-        default='./data/Cervix/Train_Test_Split/',
+        default='/work/users/jn137pgao/tl_data/Cervix/Train_Test_Split/',
         type=str,
         help='Root directory path of Train Test Split')
     parser.add_argument(
@@ -122,7 +122,7 @@ def parse_opts():
     parser.add_argument(
         '--pretrain_path',
         # 'pretrain/resnet_10.pth','pretrain/resnet_34.pth', 'pretrain/resnet_50.pth', 'pretrain/resnet_101.pth', 'pretrain/resnet_152.pth', 'pretrain/resnet200.pth',
-        default='pretrain/resnet_200.pth',
+        default='/work/users/jn137pgao/pretrained/resnet_200.pth',
         type=str,
         help='Path for pretrained model.'
     )
@@ -167,8 +167,10 @@ def parse_opts():
         help='Name used for storing results and plots')
     parser.add_argument('--manual_seed', default=1, type=int, help='Manually set random seed')
     parser.add_argument('--ci_test', action='store_true', help='If true, ci testing is used.')
-    parser.add_argument('--save_folder',default = "./trails/models",type=str, help='path for output')
-    parser.add_argument('--trails_folder',default = "/work/users/my814hiky/trails",type=str, help='path for output')
+    parser.add_argument('--save_folder',default = "/work/users/jn137pgao/tl_data/results/",type=str, help='path for output')
+    parser.add_argument('--trails_folder',default = "/work/users/jn137pgao/trails",type=str, help='path for output')
+
+    parser.add_argument('--dataset_name', default='forgot_smth', help='name of input dataset for label creation')
     
     args = parser.parse_args()
     

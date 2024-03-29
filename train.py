@@ -118,7 +118,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
         save_epoch = early_stopping.early_stopping(df_results, epoch)
         
         if save_epoch == True:
-            model_save_path = '{}/epoch_{}_k_{}.pth.tar'.format(sets.trails_folder + '/' + save_name, epoch, k)
+            model_save_path = '{}/epoch_{}_k_{}.pth.tar'.format(sets.save_folder + '/' + save_name, epoch, k)
             model_save_dir = os.path.dirname(model_save_path)
             if not os.path.exists(model_save_dir):
                 os.makedirs(model_save_dir)
@@ -136,7 +136,7 @@ def train(data_loader, model, optimizer, scheduler, total_epochs, save_interval,
         scheduler.step()
     
     if status_saved == False:
-        model_save_path = '{}/epoch_{}_k_{}.pth.tar'.format(sets.trails_folder + '/' + save_name, epoch, k)
+        model_save_path = '{}/epoch_{}_k_{}.pth.tar'.format(sets.save_folder + '/' + save_name, epoch, k)
         model_save_dir = os.path.dirname(model_save_path)
         if not os.path.exists(model_save_dir):
             os.makedirs(model_save_dir)
